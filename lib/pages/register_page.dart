@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({Key? key}) : super(key: key);
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final _emailControler = TextEditingController();
+  final _userNameControler = TextEditingController();
   final _passwordControler = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
@@ -17,7 +18,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: const Text('Register'),
       ),
       body: Form(
         key: _formKey,
@@ -35,6 +36,19 @@ class _LoginPageState extends State<LoginPage> {
                 label: Text('Email'),
               ),
               keyboardType: TextInputType.emailAddress,
+            ),
+            TextFormField(
+              validator: (val) {
+                if (val == null || val.isEmpty) {
+                  return 'Please fill in userName';
+                }
+                return null;
+              },
+              controller: _userNameControler,
+              decoration: const InputDecoration(
+                label: Text('User Name'),
+              ),
+              obscureText: true,
             ),
             TextFormField(
               validator: (val) {
@@ -57,10 +71,11 @@ class _LoginPageState extends State<LoginPage> {
                 }
                 final email = _emailControler.text;
                 final password = _passwordControler.text;
-                final res = await Supabase.instance.client.auth.signIn(
-                  email: email,
-                  password: password,
-                );
+                final userName = _userNameControler.text;
+                final res = await Supabase.instance.client.auth
+                    .signUp(email, password, userMetadata: {
+                  "username": userName,
+                });
                 final error = res.error;
                 if (error != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -71,7 +86,7 @@ class _LoginPageState extends State<LoginPage> {
                   return;
                 }
               },
-              child: const Text('Login'),
+              child: const Text('Register'),
             ),
           ],
         ),
